@@ -1,0 +1,127 @@
+/* menu.css */
+ * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* 共通スタイル */
+body, html {
+    height: 100vh; /* ビューポートの高さに合わせる */
+    margin: 0;
+    font-family: 'Arial', sans-serif; /* フォントを指定 */
+}
+
+.content {
+    display: flex;
+    flex-direction: row; /* ここを変更 */
+    width: 100%;
+    height: 100vh ; /* 画面の残りの高さ */
+    overflow: hidden; /* スクロールバーを非表示にする */
+}
+
+main, aside {
+    flex-grow: 1; /* サイドバーが全体の1/4を占めるように設定 */
+    border-left: 1px solid #ccc; /* サイドバーの左側に境界線を追加 */
+    height: 100%; /* .content の高さに合わせる */
+    overflow: auto; /* 必要に応じて内部スクロールを許可 */
+}
+
+aside {
+    width: 50vw; /* 幅をビューポート幅の50%に設定 */
+}
+
+.menu {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 10px;
+}
+
+.menu-items {
+    display: flex;
+    overflow-x: auto;
+    width: max-content;
+}
+
+.menu-item {
+    display: flex;
+    flex-direction: column; /* 配置を縦並びに変更 */
+    align-items: center;
+    justify-content: space-between;
+    width: calc(50vw /2 ); /* 幅をビューポート幅の1/3に設定 */
+    height: 95vh; /* 高さをビューポートの高さに合わせる */
+    box-sizing: border-box;
+    padding: 10px;
+    border: 1px solid #ddd;
+    margin: 10px;
+    background-color: #f9f9f9; /* 一時的な背景色 */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    cursor: pointer;
+    transition: transform 0.3s ease;
+    z-index: 1; /* 他の要素の上に表示 */
+    overflow: auto; /* 内容が収まらない場合にスクロールバーを表示 */
+}
+
+.menu-item img {
+    width: 100%;  /* 幅を.menu-itemの幅に合わせる */
+    height: 200px;  /* 高さも.menu-itemの高さに合わせる */
+    object-fit: cover;  /* 画像のアスペクト比を保ちつつ、指定した高さと幅に収まるように調整 */
+}
+
+.page-button {
+    font-size: 2em;
+    color: #ccc;
+    cursor: pointer;
+    background: none;
+    border: none;
+    display: flex;
+    flex-direction: row;
+}
+
+#detail-window,
+#history-window {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #fff;
+    padding: 20px;
+    box-sizing: border-box;
+    z-index: 1002;
+    display: none; /* 初期状態では非表示にします */
+}
+
+#detail-window .detail-content,
+#history-window .history-content {
+    position: relative;
+    background: #fff;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.close-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    cursor: pointer;
+}
+
+/* レスポンシブデザイン */
+@media (max-width: 1200px) {
+    .menu-item {
+        width: calc(100% / 2 - 20px); /* 2列表示 */
+    }
+}
+
+@media (max-width: 768px) {
+    .menu-item {
+        width: 100%; /* 1列表示 */
+    }
+}
+
+@media (max-width: 480px) {
+    .page-button {
+        font-size: 1.5em;
+    }
+}

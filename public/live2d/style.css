@@ -1,0 +1,934 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: "Arial", sans-serif;
+    background-color: #f5f5f5;
+    overflow: hidden;
+}
+
+#orderList {
+    display: block;
+}
+
+.main-container {
+    display: grid;
+    grid-template-rows: repeat(10, 1fr);
+    /* 10分割の縦レイアウト */
+    grid-template-columns: repeat(10, 1fr);
+    /* 10分割の横レイアウト */
+    min-height: 100vh;
+    overflow: hidden;
+}
+
+@media (max-height: 500px) {
+    .main-container {
+        grid-template-rows: repeat(9, 1fr);
+    }
+}
+
+.canvas-container {
+    position: relative;
+    /* border: 1px solid #000; */
+    grid-row: 1/6;
+    /* 縦2~5 */
+    grid-column: 4/8;
+    /* 横4~8 */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 90;
+}
+
+.bottom-container {
+    grid-row: 6/11;
+    /* 縦6~11 */
+    grid-column: 4/8;
+    /* 横4~8 */
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    align-items: center;
+    z-index: 91;
+}
+
+.popup-Container {
+    position: relative;
+    grid-row: 2/10;
+    grid-column: 1/9;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    left: 1%;
+    background-color: #ffffff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    border-radius: 10px;
+
+    padding: 20px;
+    /* 余白を追加 */
+    /* transform: translate(-50%, -50%); */
+    max-width: 80%;
+    /* ポップアップのコンテンツの最大幅を設定 */
+    max-height: 80vh;
+    /* ポップアップのコンテンツの最大高さを設定 */
+    /* overflow: auto; コンテンツがはみ出す場合はスクロール可能にする */
+    overflow: visible;
+    transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+}
+
+@media (max-height: 500px) {
+    .popup-Container {
+        grid-row: 2/8;
+        grid-column: 1/9;
+    }
+}
+
+.cartPopup-Container {
+    position: relative;
+    grid-row: 2/7;
+    grid-column: 8/11;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    left: 1%;
+    background-color: #ffffff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    border-radius: 10px;
+
+    padding: 20px;
+    /* 余白を追加 */
+    /* transform: translate(-50%, -50%); */
+    max-width: 80%;
+    /* ポップアップのコンテンツの最大幅を設定 */
+    max-height: 80vh;
+    /* ポップアップのコンテンツの最大高さを設定 */
+    /* overflow: auto; コンテンツがはみ出す場合はスクロール可能にする */
+    overflow: visible;
+    transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+}
+
+.pay-container {
+    position: relative;
+    /* border: 1px solid #000; */
+    grid-row: 1/2;
+    /* 縦2~5 */
+    grid-column: 9/11;
+    /* 横4~8 */
+    /* flex-direction: column; */
+    justify-content: space-evenly;
+    align-items: center;
+    display: flex;
+    z-index: 92;
+}
+
+/* .popup-Container.show {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+    display: block;
+    animation: fadeIn 0.5s ease-out;
+} */
+#popupContent {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    /* display: none; */
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    grid-template-rows: repeat(10, 1fr);
+    gap: 10px;
+    justify-items: center;
+    align-items: center;
+}
+
+/* #popupContent {
+    position:absolute;
+    text-align: center;
+    top:50%;
+    left: 50%;
+    width: 100%;
+    height: 100%;
+    display: none;
+} */
+
+#popupTitle {
+    position: relative;
+    /* border: 1px solid #000; */
+    grid-row: 1/2;
+    /* 縦2~5 */
+    grid-column: 2/10;
+    /* 横4~8 */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 90;
+    color: #333;
+}
+
+/* #cartPopupContent {
+    position:absolute;
+    text-align: center;
+    top:50%;
+    left: 50%;
+    width: 100%;
+    height: 100%; */
+/* display: none; */
+/* display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    grid-template-rows: repeat(10, 1fr);
+    gap: 10px;
+    justify-items: center;
+    align-items: center;
+} */
+
+#cartPopupContent {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    grid-template-rows: repeat(10, 1fr);
+    gap: 10px;
+    justify-items: center;
+    align-items: center;
+}
+
+
+#cartPopupTitle {
+    position: relative;
+    /* border: 1px solid #000; */
+    grid-row: 1/2;
+    /* 縦2~5 */
+    grid-column: 2/10;
+    /* 横4~8 */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 90;
+    color: #333;
+}
+
+#cartList {
+    position: relative;
+    /* border: 1px solid #000; */
+    grid-row: 2/8;
+    /* 縦2~5 */
+    grid-column: 2/10;
+    /* 横4~8 */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+
+.imageFrame {
+    position: relative;
+    /* border: 1px solid #000; */
+    grid-row: 2/8;
+    /* 縦2~5 */
+    grid-column: 2/10;
+    /* 横4~8 */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    top: 5%;
+    z-index: 90;
+    color: #555;
+    max-width: 100%;
+    max-height: 80%;
+    /* max-width: 100%;
+    height: auto; */
+}
+
+.imageContent {
+    max-width: 40%;
+    height: auto;
+    /* height: 100%; */
+}
+
+@media (max-height: 500px) {
+    .imageContent {
+        max-width: 25%;
+        height: auto;
+    }
+}
+
+@media (max-height: 1000px) {
+    .imageContent {
+        max-width: 50%;
+        height: auto;
+    }
+}
+
+/* 提案画像のテキストデザイン */
+.imageText {
+    position: relative;
+    /* position: relative; */
+    /* border: 1px solid #000; */
+    grid-row: 9/11;
+    /* 縦2~5 */
+    grid-column: 2/10;
+    /* 横4~8 */
+    /* display: flex; */
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 90;
+    display: inline-block;
+    padding: 0 55px;
+}
+
+.imageText:before,
+.imageText:after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    display: inline-block;
+    width: 45px;
+    height: 2px;
+    border-top: solid 1px black;
+    border-bottom: solid 1px black;
+}
+
+.imageText:before {
+    left: 0;
+}
+
+.imageText:after {
+    right: 0;
+}
+
+
+#popupContent button {
+    /* background-color: #4CAF50; */
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+#popupContent.show {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+    /* display: block; */
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    grid-template-rows: repeat(10, 1fr);
+    gap: 10px;
+    justify-items: center;
+    align-items: center;
+    animation: fadeIn 0.5s ease-out;
+}
+
+#container {
+    /* position: relative; */
+    text-align: center;
+    margin-bottom: 20px;
+    width: 100%
+        /* 下部の余白を確保 */
+}
+
+.btn-group {
+    position: relative;
+    /* border: 1px solid #000; */
+    grid-row: 1/2;
+    /* 縦2~5 */
+    grid-column: 9/11;
+    /* 横4~8 */
+    /* flex-direction: column; */
+    justify-content: space-evenly;
+    /* align-items: center; */
+    display: flex;
+    z-index: 91;
+}
+
+label {
+    margin-bottom: 10px;
+}
+
+#textInput {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    width: 80%;
+    max-width: 100%;
+}
+
+/* テキストエリアスタイル */
+#textArea {
+    background: #f8f9fa;
+    /* 明るいグレーで読み取り専用らしい見た目に */
+    color: #495057;
+    /* 落ち着いたテキストカラー */
+    border: 1px solid #ced4da;
+    /* 枠線も落ち着いた色に */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+    padding: 20px;
+    border-radius: 8px;
+    font-family: 'Arial', sans-serif;
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.3s ease-in-out;
+    width: 80%;
+    /* 追加: レスポンシブ対応 */
+    min-height: 150px;
+    /* 追加: 最小の高さ指定 */
+    resize: vertical;
+    /* 追加: 垂直方向のリサイズのみを許可 */
+
+    /* 入力不能時のスタイル */
+    background: #f0f0f0;
+    /* 背景色変更で読み取り専用を示す */
+    color: #333;
+    /* テキストの色を暗めにして読み取り専用感を出す */
+    cursor: default;
+    /* カーソルをデフォルトに設定 */
+}
+
+/* 読み取り専用のテキストエリアにマウスホバーした時のカーソル表示を変更する */
+#textArea[readonly]:hover {
+    cursor: not-allowed;
+    /* カーソルを禁止マークに */
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+    #textArea {
+        width: 90%;
+        /* モバイルデバイスでの幅を調整 */
+    }
+}
+
+/* カートに商品が追加されたらボタンの色をslategrayに変更 */
+#cartButton {
+    position: relative;
+    background-color: lightblue;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+#cartButton[data-num="0"]::before {
+    display: none;
+}
+
+#cartButton::before {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    content: attr(data-num);
+    min-width: 30px;
+    height: 30px;
+    box-sizing: border-box;
+    padding: 6px;
+    font-size: 14px;
+    font-weight: bold;
+    background-color: #ef5350;
+    border: 2px solid #fff;
+    border-radius: 15px;
+    top: 0;
+    right: 0;
+    transform: translate(50%, -50%);
+    z-index: 1;
+}
+
+#payButton {
+    background-color: #f0ad4e;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+#suggestDishButton {
+    background-color: #4caf50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+#suggestDishButton:hover {
+    background-color: #185f1a;
+}
+
+#startOrderButton {
+    background-color: #008cba;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+#startOrderButton:hover {
+    background-color: #1b00b3;
+}
+
+#cartAddButton {
+    display: none;
+    background-color: #ed8e13;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+#noMoreOrderButton {
+    display: none;
+    background-color: #fe4561;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+#orderButton {
+    display: none;
+    background-color: #ed8e13;
+    position: relative;
+    grid-row: 8/10;
+    /* 縦2~5 */
+    grid-column: 4/8;
+    /* 横4~8 */
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+/* #cartCloseButton{
+    position: absolute;
+    top: 10px; 
+    right: 10px; 
+    background-color: #f44336;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+} */
+
+#cartCloseButton {
+    position: absolute;
+    top: 10px;
+    /* 上部からの距離 */
+    right: 10px;
+    /* 右からの距離 */
+    background-color: #f44336;
+    /* 赤色の背景 */
+    color: white;
+    /* 白色のテキスト */
+    width: 40px;
+    /* ボタンの幅 */
+    height: 40px;
+    /* ボタンの高さ */
+    padding: 5px;
+    /* 内側の余白 */
+    border: none;
+    border-radius: 5px;
+    /* 角を少し丸める */
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    /* "×"記号のサイズ */
+    line-height: 1;
+    /* "×"記号の行の高さ */
+}
+
+#cartCloseButton::before {
+    content: "X";
+    /* "×"記号を追加 */
+}
+
+#bubble {
+    /* position: absolute; */
+    /* background-color: rgba(255, 255, 255, 0.8);
+    border: 2px solid #007bff;
+    border-radius: 8px;
+    padding: 15px;
+    width: 80%;
+    text-align: center;
+    margin-bottom: 3%; */
+    background-color: rgba(255, 255, 255, 0.95);
+    border: 4px solid #007bff;
+    border-radius: 16px;
+    padding: 20px;
+    width: 80%;
+    text-align: center;
+    margin: 3% auto;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.textbox p {
+    margin: 0;
+}
+
+#textContainer {
+    display: none;
+}
+
+#textContainer p {
+    margin: 0;
+    width: 100%;
+    font-size: 1em;
+}
+
+@media screen and (min-width: 600px) {
+    #textContainer p {
+        font-size: 1.2em;
+    }
+}
+
+@media screen and (min-width: 900px) {
+    #textContainer p {
+        font-size: 1.5em;
+    }
+}
+
+#closeButton {
+    /* background-color: #dc3545; */
+    position: absolute;
+    top: 10px;
+    /* 上部からの距離 */
+    right: 10px;
+    /* 右からの距離 */
+    background-color: #f44336;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+#closeButton:hover {
+    background-color: #710e18;
+    /* ホバー時の色 */
+}
+
+#myCanvas {
+    position: absolute;
+    text-align: center;
+    border: 1px solid #000;
+    height: 100%;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.5); /* 影を追加 */
+    border-radius: 10px; /* 角を丸くする */
+    z-index: 90;
+}
+
+/* ========
+
+AzureOpenAI
+質問ポップアップCSS
+
+======== */
+#quesButton {
+    background-color: #4CAF50;
+    /* 緑色の背景 */
+    color: white;
+    /* 白色のテキスト */
+    padding: 10px 20px;
+    /* パディング */
+    border: none;
+    /* ボーダーなし */
+    border-radius: 50%;
+    /* 円形 */
+    cursor: pointer;
+    /* カーソルをポインターに */
+    font-size: 24px;
+    /* フォントサイズ */
+    position: relative;
+    /* 相対位置 */
+    outline: none;
+    /* アウトラインなし */
+}
+
+#quesButton::after {
+    content: '？';
+    /* ボタンのテキスト */
+}
+
+#quesButton.close::after {
+    content: '✖';
+    /* バツボタンのテキスト */
+}
+
+.ques-container {
+    position: relative;
+    grid-row: 10/11;
+    grid-column: 10/11;
+    right: 5%;
+    /* border: 1px solid #000; */
+    /* flex-direction: column; */
+    justify-content: space-evenly;
+    align-items: center;
+    /* display: none; */
+    z-index: 93;
+}
+
+.quesPopup-Container {
+    position: relative;
+    grid-row: 3/10;
+    grid-column: 8/11;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    right: 5%;
+    /* left: 1%; */
+    background-color: #ffffff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    border-radius: 10px;
+
+    padding: 20px;
+    /* 余白を追加 */
+    /* transform: translate(-50%, -50%); */
+    max-width: 100%;
+    /* ポップアップのコンテンツの最大幅を設定 */
+    max-height: 80vh;
+    /* ポップアップのコンテンツの最大高さを設定 */
+    /* overflow: auto; コンテンツがはみ出す場合はスクロール可能にする */
+    /* overflow: visible; */
+    overflow: hidden;
+    transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+    z-index: 99;
+}
+
+#quesPopupContent {
+    position: absolute;
+    /* display: flex; */
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    grid-template-rows: repeat(10, 1fr);
+    gap: 10px;
+    justify-items: center;
+    align-items: center;
+}
+
+#quesList {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 10px;
+    border-bottom: 1px solid #000;
+}
+
+#quesOptions {
+    display: flex;
+    justify-content: space-around;
+    padding: 10px;
+    border-bottom: 1px solid #000;
+}
+
+#quesInput {
+    flex-grow: 0;
+    padding: 10px;
+}
+
+/* 最上部のタイトル */
+.header {
+    position: relative;
+    grid-row: 1/2;
+    grid-column: 1/11;
+    top: 0;
+    z-index: 1;
+    width: 100%;
+    /* height: 50px; */
+
+    font-size: 10px;
+    text-align: center;
+    line-height: 50px;
+
+    background-color: dimgray;
+    color: white;
+}
+
+/* メッセージ表示部 */
+.content {
+    position: relative;
+    grid-row: 2/10;
+    grid-column: 1/11;
+    width: 100%;
+    height: 100%;
+    /* min-height: calc(100vh - 100px); */
+
+    /* margin: 50px auto; */
+    padding-top: 10px;
+
+    background-color: lightgray;
+    overflow: auto;
+
+}
+
+/* チャット表示部 */
+#chat-area {
+    overflow: scroll;
+    padding: 10px;
+    height: 100%;
+
+    list-style: none;
+
+    /* スクロールバー非表示（IE,Edge）*/
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+
+}
+
+::-webkit-scrollbar {
+    /* スクロールバー非表示（Chrome,Safari）*/
+    display: none;
+}
+
+
+.balloon {
+    margin: 20px 0;
+    display: flex;
+    align-items: flex-start;
+}
+
+.balloon-r {
+    margin-right: 15px;
+    justify-content: flex-end;
+}
+
+.img-circle {
+    width: 50px;
+    height: 50px;
+
+    margin: 0 15px;
+    border-radius: 25px;
+
+    background-color: white;
+}
+
+.talk {
+    max-width: 500px;
+
+    padding: 10px;
+    border-radius: 10px;
+
+    background: white;
+}
+
+.talk-r {
+    background-color: skyblue;
+}
+
+/* 最下部のメッセージ入力・送信部 */
+.footer {
+    position: absolute;
+    grid-row: 10/11;
+    grid-column: 1/11;
+    z-index: 1;
+    bottom: 0;
+    width: 100%;
+    height: 50px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    background-color: white;
+}
+
+.img-mic{
+    width: 50px;
+    height: 50px;
+    margin: 0 15px;
+    border-radius: 25px;
+    background-color: white;
+    border: 4px solid #007bff;
+}
+
+.msg-input {
+    width: 70%;
+
+    margin-right: 10px;
+    padding: 5px 15px;
+    border: 1px solid gray;
+    border-radius: 25px;
+
+    background-color: whitesmoke;
+}
+
+#msg-send-hidden {
+    display: none;
+}
+
+
+.btn-submit {
+    padding: 6px;
+    border: none;
+    border-radius: 5px;
+
+    background-color: deepskyblue;
+    color: white;
+}
+
+/* ========
+
+画面サイズに応じてUIの大きさを変更
+
+======== */
+
+@media screen and (min-width: 600px) {
+    #textInput {
+        width: 60%;
+    }
+
+    #startOrderButton {
+        font-size: 18px;
+    }
+}
+
+@media screen and (min-width: 900px) {
+    #textInput {
+        width: 50%;
+    }
+
+    #startOrderButton {
+        font-size: 20px;
+    }
+}

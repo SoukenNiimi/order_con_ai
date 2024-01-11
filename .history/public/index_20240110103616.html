@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ja">
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TypeScript HTML App</title>
+  <link rel="stylesheet" href="./live2d/style.css" type="text/css">
+  <!-- Pollyfill script -->
+  <script src="https://unpkg.com/core-js-bundle@3.6.1/minified.js"></script>
+  <!-- Live2DCubismCore script -->
+  <script src="./live2d/live2dcubismcore.js"></script>
+  <!-- Build script -->
+  <script src="./live2d/bundle.js"></script>
+
+  <!-- VOICEVOXのAPI -->
+  <script src="./live2d/TtsQuestV3Voicevox.js"></script>
+
+</head>
+
+<body>
+  <div class="main-container">
+    <div class="canvas-container" id="canvasContainer">
+      <!-- <canvas id="myCanvas" class="move" width="400" height="300"></canvas> -->
+    </div>
+
+    <div class="bottom-container">
+      <!-- 吹き出しを表示する部分 -->
+      <div class="textbox" id="bubble">
+        <p id="bubbleText">いらっしゃいませ</p>
+      </div>
+
+      <div id="container">
+        <div id="textContainer">
+          <label for="textInput">注文入力:</label>
+          <input type="text" id="textInput" placeholder="テキストを入力">
+        </div>
+        <textarea id="textArea" readonly placeholder="注文確認や今日の天気をここに表示"></textarea>
+        <div id="orderList"></div>
+
+        <div class="btn-group">
+          <button id="suggestDishButton">提案</button>
+          <button id="startOrderButton">注文開始</button>
+          <button id="cartAddButton">カートに追加</button>
+          <button id="noMoreOrderButton">ありません</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ポップアップのコンテナ -->
+    <div class="popup-Container">
+      <!-- ポップアップのコンテンツ -->
+      <div id="popupContent">
+        <h2 id="popupTitle">おすすめの料理</h2>
+        <div class="imageFrame">
+          <!-- <img class="imageContent" src="../../Resources/frenchtoast2.jpg" alt="画像"> -->
+        </div>
+        <h2 class="imageText">フレンチトースト</h2>
+        <button id="closeButton">閉じる</button>
+      </div>
+    </div>
+
+    <!-- カートポップアップのコンテナ -->
+    <div class="cartPopup-Container">
+      <!-- ポップアップのコンテンツ -->
+      <div id="cartPopupContent">
+        <h2 id="cartPopupTitle">カート一覧</h2>
+        <div id="cartList"></div>
+        <button id="orderButton">注文確定</button>
+        <button id="cartCloseButton"></button>
+      </div>
+    </div>
+
+    <!-- 質問ポップアップのコンテナ -->
+    <div class="quesPopup-Container">
+      <div id="quesPopupContent">
+        <div class="header">
+          <h1>質問</h1>
+        </div>
+
+        <section class="content">
+          <ul id="chat-area">
+            <li>
+              <div class="balloon">
+                <!-- <img class="img-circle" src="./Mao.png" alt="image" /> -->
+                <p class="talk">こんにちは！</p>
+              </div>
+            </li>
+            <li>
+              <div class="balloon">
+                <!-- <img class="img-circle" src="./Mao.png" alt="image" /> -->
+                <p class="talk">何かご質問はありますか？</p>
+              </div>
+            </li>
+          </ul>
+        </section>
+
+        <footer class="footer">
+          <!-- <input type="image" class="img-mic" src="./mic.png" /></input> -->
+          <input id="msg-send" class="msg-input" type="text" placeholder="マイクを押して質問" />
+          <input id="msg-send-hidden" type="text"></input>
+          <button id="ques-submit" class="btn-submit" type="button">
+            送信
+          </button>
+        </footer>
+      </div>
+    </div>
+
+    <!-- 質問ボタンポップアップ -->
+    <div class="ques-container">
+      <button id="quesButton"></button>
+    </div>
+
+    <!-- カート、決済ボタン -->
+    <div class="pay-container">
+      <div class="cartContent">
+        <button id="cartButton" data-num="0">カート</button>
+      </div>
+      <button id="payButton">会計</button>
+    </div>
+  </div>
+
+  <!-- <script type="module" src="speechRecognition.js"></script>
+  <script src="OpenWeatherMap.js"></script> -->
+  <!-- VOICEVOX -->
+  <!-- <script src="VOICEVOX_WEB.js"></script> -->
+  <!-- <script src="VOICEVOX.js"></script> -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script>
+    let dishes = [];
+    let cart = [];
+
+
+    async function get_User_id() {
+      let userId;
+      await $.ajax({
+        type: 'GET',
+        url: '/get-user-id',
+        success: function (data1) {
+          userId = data1.userId;
+        },
+        error: function () {
+          console.error('ユーザーIDの取得に失敗しました');
+        }
+      });
+      return userId;
+    }
+
+    $(document).ready(async function () {
+      const user_id = await get_User_id();
+      if (user_id) { // user_idが正しく取得できているか確認
+        $.ajax({
+          type: 'GET',
+          url: '/get-dishes',
+          data: { user_id: user_id },
+          success: function (data) {
+            data.forEach(function (dish) {
+              dishes.push(dish);
+            });
+            console.log(dishes);
+          },
+          error: function () {
+            console.error('料理の取得に失敗しました');
+          }
+        });
+      } else {
+        console.error('ユーザーIDが取得できませんでした');
+      }
+    });
+  </script>
+</body>
+
+</html>

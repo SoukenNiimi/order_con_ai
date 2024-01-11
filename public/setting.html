@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>オーダーコンシェルジュAI</title>
+    <style>
+        .header {
+            display: flex;
+            align-items: center;
+            position: fixed;
+            width: 100%;
+            background: #fff;
+            z-index: 1000;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+
+        .menu-icon {
+            padding: 10px;
+            cursor: pointer;
+            font-size: 24px;
+            z-index: 1001;
+        }
+
+        .title {
+            margin-left: 10px;
+            transition: transform 0.3s;
+        }
+
+        .sidebar {
+            position: fixed;
+            left: -250px;
+            top: 0;
+            width: 250px;
+            height: 100%;
+            background: #333;
+            transition: left 0.3s;
+            padding: 10px;
+            box-sizing: border-box;
+            z-index: 999;
+        }
+
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .sidebar ul li {
+            padding: 10px;
+            border-bottom: 1px solid #444;
+            cursor: pointer;
+            color: white;
+        }
+
+        .sidebar ul li:hover {
+            background: #444;
+        }
+
+        .content {
+            padding-top: 60px;
+            transition: margin-left 0.3s;
+        }
+
+        .active-sidebar {
+            left: 0;
+        }
+
+        .active-content {
+            margin-left: 250px;
+        }
+
+        /* 新たに追加したスタイル */
+        .edit-form {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 400px;
+            background: #fff;
+            padding: 20px;
+            box-sizing: border-box;
+            z-index: 1002;
+            display: none;
+            /* 初期状態では非表示にします */
+        }
+
+        .edit-form .close-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            cursor: pointer;
+        }
+
+        .edit-form input,
+        .edit-form textarea,
+        .edit-form button {
+            display: block;
+            width: 100%;
+            margin-bottom: 10px;
+            margin-top: 10px;
+            /* 上部にもマージンを追加 */
+        }
+
+        #dish-list-container {
+            height: calc(100vh - 200px);
+            overflow-y: auto;
+        }
+
+        #dish-list img {
+            width: 50px;
+            height: 50px;
+        }
+
+        .live2d-button {
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header" id="header">
+        <div class="menu-icon" onclick="toggleMenu()">≡</div>
+        <div class="title">オーダーコンシェルジュAI</div>
+    </div>
+    <div class="sidebar" id="sidebar">
+        <ul>
+            <li onclick="switchTab('tab-ryouri')">料理</li>
+            <li onclick="switchTab('tab-system')">システム</li>
+        </ul>
+    </div>
+    <div class="content" id="content">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <div id="tab-ryouri" class="tab">
+            <!-- 料理設定の内容 -->
+            <div>料理</div>
+            <input type="text" id="search" placeholder="検索">
+            <button id="search-button">検索</button>
+            <button id="add-button">追加</button>
+            <div id="dish-list-container" style="height: calc(100vh - 200px); overflow-y: auto;">
+                <table id="dish-list">
+                    <!-- データベースから取得した料理の一覧 -->
+                </table>
+            </div>
+            <form id="edit-form" class="edit-form" enctype="multipart/form-data">
+                <!-- 編集フォーム -->
+                <div class="close-button" onclick="closeForm()">×</div>
+                <input type="text" id="dish-name" name="dish_name" placeholder="料理名">
+                <input type="file" id="dish-image" name="image" onchange="previewImage()">
+                <div id="image-preview"></div>
+                <input type="text" id="dish-tag" name="tags" placeholder="タグ">
+                <textarea id="dish-description" name="description" placeholder="料理の説明文"></textarea>
+                <input type="number" id="dish-price" name="price" placeholder="価格">
+                <select id="category-list" name="category_id">
+                    <!-- データベースから取得したカテゴリの一覧 -->
+                </select>
+                <button id="submit-button" type="submit">送信</button>
+            </form>
+        </div>
+        <div id="tab-system" class="tab" style="display: none;">
+            <!-- システム設定の内容 -->
+            <div>システム</div>
+        </div>
+    </div>
+    <a href="/live2d" class="live2d-button">Live2Dを見る</a>
+    <div id="overlay"
+        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 1001;">
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        document.getElementById('add-button').addEventListener('click', function () {
+            document.getElementById('edit-form').style.display = 'block';
+            document.getElementById('overlay').style.display = 'block';
+        });
+
+        function closeForm() {
+            document.getElementById('edit-form').style.display = 'none';
+            document.getElementById('overlay').style.display = 'none';
+        }
+
+        function toggleMenu() {
+            var sidebar = document.getElementById('sidebar');
+            var content = document.getElementById('content');
+            var header = document.getElementById('header');
+            sidebar.classList.toggle('active-sidebar');
+            content.classList.toggle('active-content');
+            header.classList.toggle('active-content'); // ヘッダーも移動させる
+        }
+
+        function switchTab(tabId) {
+            var tabs = document.getElementsByClassName('tab');
+            for (var i = 0; i < tabs.length; i++) {
+                tabs[i].style.display = 'none';
+            }
+            document.getElementById(tabId).style.display = 'block';
+        }
+
+        function previewImage() {
+            var file = document.getElementById('dish-image').files[0];
+            var reader = new FileReader();
+            reader.onloadend = function () {
+                document.getElementById('image-preview').style.backgroundImage = 'url(' + reader.result + ')';
+            }
+            if (file) {
+                reader.readAsDataURL(file);
+            } else {
+                document.getElementById('image-preview').style.backgroundImage = '';
+            }
+        }
+
+        document.getElementById('edit-form').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const csrfToken = '<%= csrfToken %>';
+            const formData = new FormData(this);
+            $.ajax({
+                type: 'POST',
+                url: '/add-dish',
+                data: formData,
+                processData: false,
+                contentType: false,
+                headers: {
+                    'XSRF-TOKEN': csrfToken,
+                },
+                success: function (data) {
+                    if (data.status === 'success') {
+                        alert("料理が追加されました");
+                    }
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    alert('エラーが発生しました');
+                }
+            });
+        });
+
+        async function get_User_id() {
+            let userId;
+            await $.ajax({
+                type: 'GET',
+                url: '/get-user-id',
+                success: function (data1) {
+                    userId = data1.userId;
+                },
+                error: function () {
+                    console.error('ユーザーIDの取得に失敗しました');
+                }
+            });
+            return userId;
+        }
+
+
+        window.onload = async function () {
+            const user_id = await get_User_id();
+            $.ajax({
+                type: 'GET',
+                url: './get-dishes',
+                data: { user_id: user_id },
+                success: function (data) {
+                    const dishList = document.getElementById('dish-list');
+                    console.log(data);
+                    data.forEach(function (dish) {
+                        const dishElement = document.createElement('tr');
+                        dishElement.innerHTML = `
+                            <td><img src="${dish.image.replace(/\\/g, '/')}" width="50" height="50"></td>
+                            <td>${dish.dish_name}</td>
+                            <td>${dish.description}</td>
+                            <td>${dish.price}</td>
+                        `;
+                        dishList.appendChild(dishElement);
+                    });
+                },
+                error: function () {
+                    console.error('料理の取得に失敗しました');
+                }
+            });
+        };
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>メニュー</title>
+    <link rel="stylesheet" href="menu.css">
+</head>
+
+<body>
+    <div class="content">
+        <main>
+            <div class="menu-items">
+                <!-- メニューアイテムの内容 -->
+            </div>
+        </main>
+        <aside>
+            <!-- 注文履歴やカートなどのサイドバーの内容 -->
+            <section class="order-summary">
+                <div class="tab">
+                    <div class="tab-button active" id="cart-tab">カート</div>
+                    <button id="history-button">注文履歴</button>
+                </div>
+                <div class="cart-wrapper">
+                    <div class="cart-content">
+                        <h2>カート</h2>
+                        <ul class="order-list" id="cart">
+                            <!-- カートの内容がここに表示されます -->
+                        </ul>
+                        <button id="order-button">注文を送信</button>
+                        <div class="total-amount">
+                            <p>税抜き合計: ¥1000</p>
+                            <p>税込み合計: ¥1100</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </aside>
+    </div>
+    <div id="history-window" style="display: none;">
+        <div class="history-content">
+            <div class="close-button" onclick="closeWindow('history-window')">×</div>
+            <h2>注文履歴</h2>
+            <ul class="order-list">
+                <!-- 注文アイテムがここに表示されます -->
+            </ul>
+            <div class="total-amount">
+                <p>税抜き合計: ¥1000</p>
+                <p>税込み合計: ¥1100</p>
+            </div>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        let dishes = [];
+        let cart = [];
+        window.onload = async function () {
+            const user_id = await get_User_id();
+            $.ajax({
+                type: 'GET',
+                url: './get-dishes',
+                data: { user_id: user_id },
+                success: function (data) {
+                    const menuItems = document.querySelector('.menu-items');
+                    data.forEach(function (dish) {
+                        const menuItem = document.createElement('div');
+                        menuItem.id = `dish-${dish.dishid}`;
+                        menuItem.classList.add('menu-item');
+                        menuItem.innerHTML = `
+                            <img src="${dish.image.replace(/\\/g, '/')}" width="50" height="50">
+                            <h2>${dish.dish_name}</h2>
+                            <p>${dish.price}円</p>
+                        `;
+                        dishes.push(dish);
+                        menuItems.appendChild(menuItem);
+                        menuItem.addEventListener('click', function () {
+                            let cartItem = cart.find(item => item.dish_id === dish.dish_id);
+                            if (cartItem) {
+                                cartItem.quantity++;
+                            } else {
+                                dish.quantity = 1;
+                                cart.push(dish);
+                            }
+                            updateCartDisplay();
+                        });
+                    });
+                },
+                error: function () {
+                    console.error('料理の取得に失敗しました');
+                }
+            });
+        };
+
+        function closeWindow(windowId) {
+            document.getElementById(windowId).style.display = 'none';
+        }
+
+        async function get_User_id() {
+            let userId;
+            await $.ajax({
+                type: 'GET',
+                url: '/get-user-id',
+                success: function (data1) {
+                    userId = data1.userId;
+                },
+                error: function () {
+                    console.error('ユーザーIDの取得に失敗しました');
+                }
+            });
+            return userId;
+        }
+        function updateCartDisplay() {
+            let cartElement = document.getElementById('cart');
+            cartElement.innerHTML = ''; // カートの内容を一旦クリア
+            cart.forEach(function (dish) {
+                let dishElement = document.createElement('div');
+                dishElement.textContent = dish.dish_name + ': ¥' + dish.price + ' (' + dish.quantity + '個)';
+                dishElement.id = 'cart-item-' + dish.dish_id; // カートのアイテムを識別するためのIDを設定
+                cartElement.appendChild(dishElement);
+
+                // カートのアイテムをクリックしたときの処理
+                dishElement.addEventListener('click', function () {
+                    dish.quantity--;
+                    if (dish.quantity === 0) {
+                        let index = cart.indexOf(dish);
+                        cart.splice(index, 1);
+                    }
+                    updateCartDisplay(); // カートの表示を更新
+                });
+            });
+        }
+
+        let orderButton = document.getElementById('order-button');
+        orderButton.addEventListener('click', function () {
+            $.ajax({
+                type: 'POST',
+                url: './add-order',
+                data: JSON.stringify(cart),
+                contentType: 'application/json',
+                success: function (data) {
+                    console.log('Order successful:', data);
+                    cart = []; // カートを空にする
+                    updateCartDisplay(); // カートの表示を更新
+                },
+                error: function (error) {
+                    console.error('Error:', error);
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>
