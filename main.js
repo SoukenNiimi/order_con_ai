@@ -206,3 +206,8 @@ app.get('/live2d', (req, res, next) => {
     res.sendFile(path.join(__dirname, 'public', 'live2d.html'));
   }
 });
+
+app.listen(port, () => {
+  console.log(`Server is running at http://localhost:${port}`);
+});
+
