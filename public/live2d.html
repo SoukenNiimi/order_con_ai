@@ -42,7 +42,7 @@
         <div class="btn-group">
           <button id="suggestDishButton">提案</button>
           <button id="startOrderButton">注文開始</button>
-          <button id="cartAddButton">カートに追加</button>
+          <button id="cartAddButton" >カートに追加</button>
           <button id="noMoreOrderButton">ありません</button>
         </div>
       </div>
@@ -128,7 +128,7 @@
   <!-- <script src="VOICEVOX.js"></script> -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script>
-    let dishes = [];
+    window.dishes = [];
     let cart = [];
 
 
@@ -168,6 +168,29 @@
         console.error('ユーザーIDが取得できませんでした');
       }
     });
+
+
+    // function searchTag() {
+    //   // 入力された文字列を取得
+    //   var input = document.getElementById("textInput").value;
+
+    //   // 入力された文字列が存在するかを検索
+    //   var found = false;
+    //   for (var i = 0; i < dishes.length; i++) {
+    //     if (dishes[i].tags.includes(input)) {
+    //       found = true;
+    //       break;
+    //     }
+    //   }
+
+    //   // 結果を表示
+    //   if (found) {
+    //     alert("入力された文字列は存在します。");
+    //   } else {
+    //     alert("入力された文字列は存在しません。");
+    //   }
+    // }
+
   </script>
 </body>
 

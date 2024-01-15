@@ -163,6 +163,44 @@ async function getDishesByUserId(userId) {
     }
 }
 
+
+async function getTableinfo(userId) {
+    try {
+        await sql.connect(config);
+        const result = await sql.query`SELECT * FROM tableInformation_table WHERE userid = ${userId} AND tableflag = 0;
+    `;
+        return result.recordset;
+    } catch (err) {
+        console.error('データベースエラー:', err);
+    } finally {
+        await sql.close();
+    }
+}
+
+async function updateTableflg_end(tableId,userId){
+    try {
+        await sql.connect(config);
+        const result = await sql.query`UPDATE tableInformation_table SET tableflag = 0 WHERE table_id = ${tableId} AND user_id = ${userId};`
+        return result.recordset;
+    } catch (err) {
+        console.error('データベースエラー:', err);
+    } finally {
+        await sql.close();
+    }
+}
+
+async function updateTableflg_start(tableId,userId){
+    try {
+        await sql.connect(config);
+        const result = await sql.query`UPDATE tableInformation_table SET tableflag = 1 WHERE table_id = ${tableId} AND user_id =${userId};`
+        return result.recordset;
+    } catch (err) {
+        console.error('データベースエラー:', err);
+    } finally {
+        await sql.close();
+    }
+}
+
 async function addOrder(order) {
     const { user_id, dish_id, table_id, quantity } = order;
     const order_date = new Date().toISOString().slice(0, 19).replace('T', ' ');
@@ -185,5 +223,8 @@ module.exports = {
     addCategory: addCategory,
     getCategoriesByUserId: getCategoriesByUserId,
     addDish: addDish,
-    getDishesByUserId: getDishesByUserId
+    getDishesByUserId: getDishesByUserId,
+    updateTableflg_end: updateTableflg_end,
+    updateTableflg_start: updateTableflg_start,
+    getTableinfo: getTableinfo
 };

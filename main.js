@@ -6,7 +6,7 @@ const sql = require('./public/sql');
 const crypto = require('crypto');
 const csrf = require('csurf');
 const cookieParser = require('cookie-parser');
-const multer  = require('multer');
+const multer = require('multer');
 const upload = multer({ dest: 'uploads/' });
 const app = express();
 const port = 3000;
@@ -24,7 +24,7 @@ app.use(session({
   cookie: {
     secure: false, // HTTPSを使用していない場合はfalseに設定する必要があります。
     httpOnly: true,
-    sameSite: 'lax', 
+    sameSite: 'lax',
   },
 }));
 
@@ -131,13 +131,13 @@ app.post('/add-dish', upload.single('image'), async (req, res) => {
 app.post('/add-order', async (req, res) => {
   let orders = req.body;
   try {
-      for (let order of orders) {
-          await sql.addOrder(order);
-      }
-      res.status(200).json({ status: 'success' });
+    for (let order of orders) {
+      await sql.addOrder(order);
+    }
+    res.status(200).json({ status: 'success' });
   } catch (err) {
-      console.error('データベースエラー:', err);
-      res.status(500).send('エラーが発生しました');
+    console.error('データベースエラー:', err);
+    res.status(500).send('エラーが発生しました');
   }
 });
 
@@ -153,31 +153,63 @@ app.get('/get-category', async (req, res) => {
   }
 });
 
-app.get('/get-dishes', async (req, res) => {
-    const userId = req.query.user_id;
-    try {
-        const dishes = await sql.getDishesByUserId(userId);
-        res.json(dishes);
-    } catch (err) {
-        console.error('データベースエラー:', err);
-        res.status(500).send('データベースエラー');
+app.get('/get-tableNo', async (req, res) => {
+  const userId = req.query.user_id;
+  try {
+    console.log(userId);
+    const tableNo = await sql.getTableinfo(tableId, userId);
+    res.json(tableNo);
+  } catch (err) {
+    console.error('データベースエラー:', err);
+    res.status(500).send('データベースエラー');
+  }
+});
+
+app.get('/table-update', async (req, res) => {
+  const userId = req.query.user_id;
+  const tableId = req.query.tableId;
+  const state = req.query.state;
+  let result;
+  try {
+    if (state === "start") {
+      result = await sql.updateTableflg_start(tableId, userId);
+    } else if (state === "end") {
+      result = await sql.updateTableflg_end(tableId, userId);
+    } else {
+      return res.status(400).send('無効なステートパラメータ');
     }
+    res.json(result);
+  } catch (err) {
+    console.error('データベースエラー:', err);
+    res.status(500).send('データベースエラー');
+  }
+});
+
+app.get('/get-dishes', async (req, res) => {
+  const userId = req.query.user_id;
+  try {
+    const dishes = await sql.getDishesByUserId(userId);
+    res.json(dishes);
+  } catch (err) {
+    console.error('データベースエラー:', err);
+    res.status(500).send('データベースエラー');
+  }
 });
 
 function saveImage(userId, file) {
-    const userDir = path.join('public/img', String(userId));
-    if (!fs.existsSync(userDir)) {
-        fs.mkdirSync(userDir, { recursive: true });
-    }
+  const userDir = path.join('public/img', String(userId));
+  if (!fs.existsSync(userDir)) {
+    fs.mkdirSync(userDir, { recursive: true });
+  }
 
-    const timestamp = new Date().getTime();
-    const hash = crypto.createHash('md5').update(String(timestamp)).digest('hex');
-    const imagePath = path.join(userDir, `${hash}.jpg`);
-    const dbPath = path.join('img', String(userId), `${hash}.jpg`);
+  const timestamp = new Date().getTime();
+  const hash = crypto.createHash('md5').update(String(timestamp)).digest('hex');
+  const imagePath = path.join(userDir, `${hash}.jpg`);
+  const dbPath = path.join('img', String(userId), `${hash}.jpg`);
 
-    fs.renameSync(file.path, imagePath);
+  fs.renameSync(file.path, imagePath);
 
-    return dbPath;
+  return dbPath;
 }
 
 

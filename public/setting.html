@@ -163,15 +163,16 @@
                 <input type="text" id="dish-tag" name="tags" placeholder="タグ">
                 <textarea id="dish-description" name="description" placeholder="料理の説明文"></textarea>
                 <input type="number" id="dish-price" name="price" placeholder="価格">
-                <select id="category-list" name="category_id">
-                    <!-- データベースから取得したカテゴリの一覧 -->
-                </select>
                 <button id="submit-button" type="submit">送信</button>
             </form>
         </div>
         <div id="tab-system" class="tab" style="display: none;">
             <!-- システム設定の内容 -->
             <div>システム</div>
+            <div>テーブル番号</div>
+            <div id="button-container">
+                <!-- ここにJavaScriptでボタンが挿入されます -->
+            </div>
         </div>
     </div>
     <a href="/live2d" class="live2d-button">Live2Dを見る</a>
@@ -261,11 +262,67 @@
         }
 
 
+        // データベースから取得されたと仮定するデータ
+        const table = [];
+
+        // ボタンの状態をトグルする関数
+        function toggleButton(id) {
+            const button = buttonsData.find(btn => btn.id === id);
+            button.toggled = !button.toggled;
+            const buttonElement = document.getElementById(`button-${id}`);
+            buttonElement.classList.toggle('button-on', button.toggled);
+            buttonElement.classList.toggle('button-off', !button.toggled);
+            buttonElement.textContent = `${button.label}: ${button.toggled ? 'ON' : 'OFF'}`;
+        }
+
+        // ボタンをDOMに挿入する
+        function insertButtons() {
+            const container = document.getElementById('button-container');
+            container.innerHTML = ''; // コンテナを空にする
+
+            buttonsData.forEach(button => {
+                const buttonElement = document.createElement('button');
+                buttonElement.textContent = `${button.label}: ${button.toggled ? 'ON' : 'OFF'}`;
+                buttonElement.id = `button-${button}`;
+                buttonElement.classList.add(button.toggled ? 'button-on' : 'button-off');
+                buttonElement.onclick = function () {
+                    toggleButton(button.id);
+                };
+                container.appendChild(buttonElement);
+            });
+        }
+
+        // 初期化のための関数を実行する
+        insertButtons();
+
         window.onload = async function () {
             const user_id = await get_User_id();
             $.ajax({
                 type: 'GET',
                 url: './get-dishes',
+                data: { user_id: user_id },
+                success: function (data) {
+                    const dishList = document.getElementById('dish-list');
+                    console.log(data);
+                    data.forEach(function (dish) {
+                        const dishElement = document.createElement('tr');
+                        dishElement.innerHTML = `
+                            <td><img src="${dish.image.replace(/\\/g, '/')}" width="50" height="50"></td>
+                            <td>${dish.dish_name}</td>
+                            <td>${dish.description}</td>
+                            <td>${dish.price}</td>
+                        `;
+                        dishList.appendChild(dishElement);
+                    });
+                },
+                error: function () {
+                    console.error('料理の取得に失敗しました');
+                }
+            });
+
+            $.ajax({
+                type: 'GET',
+                url: './get-tableNo',
                 data: { user_id: user_id },
                 success: function (data) {
                     const dishList = document.getElementById('dish-list');
