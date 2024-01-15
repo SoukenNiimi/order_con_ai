@@ -127,6 +127,34 @@
             text-decoration: none;
             text-align: center;
         }
+
+        .button-on {
+            background-color: darkgreen;
+            color: white;
+            border: none;
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
+        }
+
+        .button-off {
+            background-color: lightgray;
+            color: black;
+            border: none;
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+        }
     </style>
 </head>
 
@@ -175,7 +203,7 @@
             </div>
         </div>
     </div>
-    <a href="/live2d" class="live2d-button">Live2Dを見る</a>
+    <a href="/live2d" class="live2d-button">注文画面へ</a>
     <div id="overlay"
         style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 1001;">
     </div>
@@ -186,6 +214,51 @@
             document.getElementById('edit-form').style.display = 'block';
             document.getElementById('overlay').style.display = 'block';
         });
+
+        document.querySelector('a').addEventListener('click', function (event) {
+            event.preventDefault();
+            // ここに処理を書く
+            startTableUpdate().then(() => {
+                window.location.href = event.target.href;
+            });
+        });
+
+
+        async function startTableUpdate() {
+            const user_id = await get_User_id();
+            const tableid = getCurrentTableId();
+            const csrfToken = '<%= csrfToken %>';
+
+            $.ajax({
+                url: '/table-update',
+                method: 'POST',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    userId: user_id,
+                    table_id: tableid,
+                    state: 'start'
+                }),
+                success: function (response) {
+                    console.log('サーバからのレスポンス:', response);
+                },
+                error: function (error) {
+                    console.error('エラー:', error);
+                }
+            });
+
+        }
+
+        function getCurrentTableId() {
+            const onButton = table.find(button => button.table_flag == true);
+            if (onButton) {
+                return onButton.table_id;
+            } else {
+                console.error('No button is currently turned on.');
+                return null;
+            }
+        }
+
 
         function closeForm() {
             document.getElementById('edit-form').style.display = 'none';
@@ -266,34 +339,54 @@
         const table = [];
 
         // ボタンの状態をトグルする関数
-        function toggleButton(id) {
-            const button = buttonsData.find(btn => btn.id === id);
-            button.toggled = !button.toggled;
-            const buttonElement = document.getElementById(`button-${id}`);
-            buttonElement.classList.toggle('button-on', button.toggled);
-            buttonElement.classList.toggle('button-off', !button.toggled);
-            buttonElement.textContent = `${button.label}: ${button.toggled ? 'ON' : 'OFF'}`;
+        function toggleButton(buttonsData, id) {
+            buttonsData.forEach(button => {
+                if (button.table_id === id) {
+                    button.table_flag = true;
+                } else {
+                    button.table_flag = false;
+                }
+            });
+            refreshButtons(buttonsData);
+        }
+
+        // ページ上のボタンの状態を更新する
+        function refreshButtons(buttonsData) {
+            buttonsData.forEach(button => {
+                const buttonElement = document.getElementById(`${button.table_id}`);
+                if (buttonElement) { // ボタンエレメントが存在するかを確認します。
+                    buttonElement.classList.toggle('button-on', button.table_flag);
+                    buttonElement.classList.toggle('button-off', !button.table_flag);
+                }
+            });
         }
 
         // ボタンをDOMに挿入する
-        function insertButtons() {
+        function insertButtons(buttonsData) {
             const container = document.getElementById('button-container');
             container.innerHTML = ''; // コンテナを空にする
 
             buttonsData.forEach(button => {
                 const buttonElement = document.createElement('button');
-                buttonElement.textContent = `${button.label}: ${button.toggled ? 'ON' : 'OFF'}`;
-                buttonElement.id = `button-${button}`;
-                buttonElement.classList.add(button.toggled ? 'button-on' : 'button-off');
+                buttonElement.textContent = `${button.table_id}`;
+                buttonElement.id = `${button.table_id}`;
+                buttonElement.classList.add(button.table_flag ? 'button-on' : 'button-off');
+                table.push(button);
                 buttonElement.onclick = function () {
-                    toggleButton(button.id);
+                    toggleButton(buttonsData, button.table_id);
                 };
                 container.appendChild(buttonElement);
             });
+            // 初めて挿入する時だけ最初のボタンをONにする
+            if (container.childElementCount === buttonsData.length) {
+                toggleButton(buttonsData, buttonsData[0].table_id);
+            }
         }
 
-        // 初期化のための関数を実行する
-        insertButtons();
+
+
+
+
 
         window.onload = async function () {
             const user_id = await get_User_id();
@@ -325,18 +418,9 @@
                 url: './get-tableNo',
                 data: { user_id: user_id },
                 success: function (data) {
-                    const dishList = document.getElementById('dish-list');
+                    // 初期化のための関数を実行する
+                    insertButtons(data);
                     console.log(data);
-                    data.forEach(function (dish) {
-                        const dishElement = document.createElement('tr');
-                        dishElement.innerHTML = `
-                            <td><img src="${dish.image.replace(/\\/g, '/')}" width="50" height="50"></td>
-                            <td>${dish.dish_name}</td>
-                            <td>${dish.description}</td>
-                            <td>${dish.price}</td>
-                        `;
-                        dishList.appendChild(dishElement);
-                    });
                 },
                 error: function () {
                     console.error('料理の取得に失敗しました');

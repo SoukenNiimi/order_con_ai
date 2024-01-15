@@ -1,0 +1,6 @@
+On branch main
+Your branch and 'origin/main' have diverged,
+and have 1 and 7 different commits each, respectively.
+  (use "git pull" to merge the remote branch into yours)
+
+nothing to commit, working tree clean

@@ -11,6 +11,8 @@ const upload = multer({ dest: 'uploads/' });
 const app = express();
 const port = 3000;
 const fs = require('fs');
+let userSessions = new Map();
+
 
 
 const secretKey = crypto.randomBytes(32).toString('hex');
@@ -112,6 +114,11 @@ app.get('/get-user-id', (req, res) => {
   res.json({ userId: userId });
 });
 
+app.get('/get-current-table', (req, res) => {
+  const userId = req.session.table_id;
+  res.json({ table_id:table_id });
+});
+
 app.post('/add-dish', upload.single('image'), async (req, res) => {
   const { dish_name, category_id, description, price, tags } = req.body;
   const image = req.file;
@@ -157,7 +164,7 @@ app.get('/get-tableNo', async (req, res) => {
   const userId = req.query.user_id;
   try {
     console.log(userId);
-    const tableNo = await sql.getTableinfo(tableId, userId);
+    const tableNo = await sql.getTableinfo(userId);
     res.json(tableNo);
   } catch (err) {
     console.error('データベースエラー:', err);
@@ -165,25 +172,27 @@ app.get('/get-tableNo', async (req, res) => {
   }
 });
 
-app.get('/table-update', async (req, res) => {
-  const userId = req.query.user_id;
-  const tableId = req.query.tableId;
-  const state = req.query.state;
+app.post('/table-update', async (req, res) => {//req.session.userId
+  const userId = req.body.userId;
+  const tableId = req.body.table_id;
+  const state = req.body.state;
   let result;
   try {
-    if (state === "start") {
+    if (state == "start") {
       result = await sql.updateTableflg_start(tableId, userId);
-    } else if (state === "end") {
+    } else if (state == "end") {
       result = await sql.updateTableflg_end(tableId, userId);
     } else {
       return res.status(400).send('無効なステートパラメータ');
     }
-    res.json(result);
+    res.status(200).json({message: 'Operation successful', data: result});
   } catch (err) {
     console.error('データベースエラー:', err);
     res.status(500).send('データベースエラー');
   }
 });
+
+
 
 app.get('/get-dishes', async (req, res) => {
   const userId = req.query.user_id;

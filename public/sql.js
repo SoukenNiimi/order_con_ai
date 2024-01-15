@@ -167,7 +167,7 @@ async function getDishesByUserId(userId) {
 async function getTableinfo(userId) {
     try {
         await sql.connect(config);
-        const result = await sql.query`SELECT * FROM tableInformation_table WHERE userid = ${userId} AND tableflag = 0;
+        const result = await sql.query`SELECT * FROM tableInformation_table WHERE user_id = ${userId} AND table_flag = 0;
     `;
         return result.recordset;
     } catch (err) {
@@ -192,7 +192,7 @@ async function updateTableflg_end(tableId,userId){
 async function updateTableflg_start(tableId,userId){
     try {
         await sql.connect(config);
-        const result = await sql.query`UPDATE tableInformation_table SET tableflag = 1 WHERE table_id = ${tableId} AND user_id =${userId};`
+        const result = await sql.query`UPDATE tableInformation_table SET table_flag = 1 WHERE table_id = ${tableId} AND user_id =${userId};`
         return result.recordset;
     } catch (err) {
         console.error('データベースエラー:', err);

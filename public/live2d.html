@@ -42,7 +42,7 @@
         <div class="btn-group">
           <button id="suggestDishButton">提案</button>
           <button id="startOrderButton">注文開始</button>
-          <button id="cartAddButton" >カートに追加</button>
+          <button id="cartAddButton">カートに追加</button>
           <button id="noMoreOrderButton">ありません</button>
         </div>
       </div>
@@ -147,6 +147,21 @@
       return userId;
     }
 
+    async function get_current_tableid() {
+      let table_id;
+      await $.ajax({
+        type: 'GET',
+        url: '/get-current-table',
+        success: function (data1) {
+          table_id = data1.table_id;
+        },
+        error: function () {
+          console.error('テーブル番号の取得に失敗しました');
+        }
+      });
+      return table_id;
+    }
+
     $(document).ready(async function () {
       const user_id = await get_User_id();
       if (user_id) { // user_idが正しく取得できているか確認
@@ -168,6 +183,33 @@
         console.error('ユーザーIDが取得できませんでした');
       }
     });
+
+
+    async function endTableUpdate() {
+      const user_id = await get_User_id();
+      const tableid = getCurrentTableId();
+      const csrfToken = '<%= csrfToken %>';
+
+      $.ajax({
+        url: '/table-update',
+        method: 'POST',
+        dataType: 'json',
+        contentType: 'application/json',
+        data: JSON.stringify({
+          userId: user_id,
+          table_id: tableid,
+          state: 'end'
+        }),
+        success: function (response) {
+          console.log('サーバからのレスポンス:', response);
+        },
+        error: function (error) {
+          console.error('エラー:', error);
+        }
+      });
+
+    }
+    const table = [];
 
 
     // function searchTag() {

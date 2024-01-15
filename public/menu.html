@@ -148,6 +148,61 @@
                 }
             });
         });
+
+        async function get_current_tableid() {
+            let table_id;
+            await $.ajax({
+                type: 'GET',
+                url: '/get-current-table',
+                success: function (data1) {
+                    table_id = data1.table_id;
+                },
+                error: function () {
+                    console.error('テーブル番号の取得に失敗しました');
+                }
+            });
+            return table_id;
+        }
+
+        async function endTableUpdate() {
+            const user_id = await get_User_id();
+            const tableid = getCurrentTableId();
+            const csrfToken = '<%= csrfToken %>';
+
+            $.ajax({
+                url: '/table-update',
+                method: 'POST',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    userId: user_id,
+                    table_id: tableid,
+                    state: 'end'
+                }),
+                success: function (response) {
+                    console.log('サーバからのレスポンス:', response);
+                },
+                error: function (error) {
+                    console.error('エラー:', error);
+                }
+            });
+
+        }
+
+
+        window.addEventListener('popstate', function (event) {
+            // ブラウザ履歴に関連するURLを取得します。
+            var url = document.location.pathname;
+
+            // '/menu'または'/live2D'以外の場合に特定の処理を行います。
+            if (url !== '/menu' && url !== '/live2D') {
+                // '/menu'または'/live2D'以外でブラウザバック・フォワードが発生した場合の処理。
+                endTableUpdate();
+                alert("ブラウザの戻る・進むボタンが押されました！");
+            } else {
+                // '/menu'または'/live2D'でのブラウザバック・フォワードは無視。
+            }
+        });
     </script>
 </body>
 
