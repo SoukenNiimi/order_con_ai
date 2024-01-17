@@ -177,7 +177,7 @@ async function getTableinfo(userId) {
     }
 }
 
-async function updateTableflg_end(tableId,userId){
+async function updateTableflg_end(tableId, userId) {
     try {
         await sql.connect(config);
         const result = await sql.query`UPDATE tableInformation_table SET tableflag = 0 WHERE table_id = ${tableId} AND user_id = ${userId};`
@@ -189,7 +189,21 @@ async function updateTableflg_end(tableId,userId){
     }
 }
 
-async function updateTableflg_start(tableId,userId){
+
+async function get_history(tableId, userId) {
+    try {
+        await sql.connect(config);
+        `SELECT * FROM order_table WHERE user_id = ${userId} AND table_id = ${tableId};`;
+        return result.recordset;
+    } catch (err) {
+        console.error('データベースエラー:', err);
+    } finally {
+        await sql.close();
+    }
+}
+
+
+async function updateTableflg_start(tableId, userId) {
     try {
         await sql.connect(config);
         const result = await sql.query`UPDATE tableInformation_table SET table_flag = 1 WHERE table_id = ${tableId} AND user_id =${userId};`
@@ -226,5 +240,6 @@ module.exports = {
     getDishesByUserId: getDishesByUserId,
     updateTableflg_end: updateTableflg_end,
     updateTableflg_start: updateTableflg_start,
-    getTableinfo: getTableinfo
+    getTableinfo: getTableinfo,
+    get_history: get_history
 };

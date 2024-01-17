@@ -195,10 +195,22 @@ app.post('/table-update', async (req, res) => {//req.session.userId
 
 
 app.get('/get-dishes', async (req, res) => {
-  const userId = req.query.user_id;
+  const userId = req.session.userId;
   try {
     const dishes = await sql.getDishesByUserId(userId);
     res.json(dishes);
+  } catch (err) {
+    console.error('データベースエラー:', err);
+    res.status(500).send('データベースエラー');
+  }
+});
+
+
+app.get('/get-history', async (req, res) => {
+  const userId = req.session.userId;
+  try {
+    const order = await sql.get_history(userId);
+    res.json(order);
   } catch (err) {
     console.error('データベースエラー:', err);
     res.status(500).send('データベースエラー');

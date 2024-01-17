@@ -1,0 +1,2 @@
+bundleにserchtagとfetchdishesを追加
+まだ、入力との結合ができていない

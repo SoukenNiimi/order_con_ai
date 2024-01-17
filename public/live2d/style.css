@@ -682,6 +682,7 @@ AzureOpenAI
     /* 相対位置 */
     outline: none;
     /* アウトラインなし */
+    
 }
 
 #quesButton::after {
@@ -931,4 +932,8 @@ AzureOpenAI
     #startOrderButton {
         font-size: 20px;
     }
+}
+
+#ques-submit{
+    display:none;
 }
