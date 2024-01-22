@@ -11,6 +11,7 @@ const upload = multer({ dest: 'uploads/' });
 const app = express();
 const port = 3000;
 const fs = require('fs');
+const { table } = require('console');
 let userSessions = new Map();
 
 
@@ -115,7 +116,7 @@ app.get('/get-user-id', (req, res) => {
 });
 
 app.get('/get-current-table', (req, res) => {
-  const userId = req.session.table_id;
+  const table_id = req.session.table_id;
   res.json({ table_id:table_id });
 });
 
@@ -135,16 +136,71 @@ app.post('/add-dish', upload.single('image'), async (req, res) => {
   }
 });
 
-app.post('/add-order', async (req, res) => {
-  let orders = req.body;
+// app.post('/add-order', async (req, res) => {
+//   let orders = req.body;
+//   let userId =req.session.userId;
+//   let tableId = req.session.tableId;
+//   console.log("料理追加");
+//   try {
+//     for (let order of orders) {
+//       await sql.addOrder(order,userId,tableId);
+//     }
+//     res.status(200).json({ status: 'success' });
+//   } catch (err) {
+//     console.error('データベースエラー:', err);
+//     res.status(500).send('エラーが発生しました');
+//   }
+// });
+
+
+app.get('/get-history', async (req, res) => {
+  const userId = req.session.userId;
+  const tableId = req.session.tableId
+  console.log("履歴取得")
   try {
-    for (let order of orders) {
-      await sql.addOrder(order);
-    }
-    res.status(200).json({ status: 'success' });
+    const order = await sql.get_history(userId,tableId);
+    res.json(order);
   } catch (err) {
     console.error('データベースエラー:', err);
-    res.status(500).send('エラーが発生しました');
+    res.status(500).send('データベースエラー');
+  }
+});
+
+
+app.post('/add-order', async (req, res) => {
+  let orders = req.body;
+  let userId =req.session.userId;
+  let tableId = req.session.tableId;
+  try {
+    
+    var orderResult;
+    // 注文をデータベースに登録
+    for (let order of orders) {
+            orderResult=await sql.addOrder(order,userId,tableId);
+          }
+
+    // 注文が成功した場合のみ履歴を取得
+    if (orderResult.status === 'success') {
+      const history = await sql.get_history(userId,tableId);
+
+      // 成功レスポンスを送信
+      res.status(200).json({
+        status: 'success',
+        history: history
+      });
+    } else {
+      // 注文の登録に失敗した場合はエラーメッセージを返す
+      res.status(400).json({
+        status: 'failure',
+        message: orderResult.message
+      });
+    }
+  } catch (err) {
+    console.error('データベースエラー:', err);
+    res.status(500).json({
+      status: 'error',
+      message: 'データベースエラーが発生しました'
+    });
   }
 });
 
@@ -180,6 +236,7 @@ app.post('/table-update', async (req, res) => {//req.session.userId
   try {
     if (state == "start") {
       result = await sql.updateTableflg_start(tableId, userId);
+      req.session.tableId =tableId;
     } else if (state == "end") {
       result = await sql.updateTableflg_end(tableId, userId);
     } else {
@@ -205,17 +262,6 @@ app.get('/get-dishes', async (req, res) => {
   }
 });
 
-
-app.get('/get-history', async (req, res) => {
-  const userId = req.session.userId;
-  try {
-    const order = await sql.get_history(userId);
-    res.json(order);
-  } catch (err) {
-    console.error('データベースエラー:', err);
-    res.status(500).send('データベースエラー');
-  }
-});
 
 function saveImage(userId, file) {
   const userDir = path.join('public/img', String(userId));

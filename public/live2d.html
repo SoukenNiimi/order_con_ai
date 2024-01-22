@@ -17,6 +17,10 @@
   <!-- VOICEVOXのAPI -->
   <script src="./TtsQuestV3Voicevox.js"></script>
 
+  <!-- PWAのマニフェスト -->
+  <!-- manifest.jsonを呼び出しています -->
+  <link rel="manifest" href="../manifest.json">
+
 </head>
 
 <body>
@@ -210,10 +214,20 @@
 
     }
     const table = [];
+  </script>
 
-
-    
-
+  <script>
+    // service workerが有効なら、sw.js を登録します
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('../sw.js').then(function() {
+              console.log('Service Worker Registered'); 
+      });
+        // window.addEventListener("load", function() {
+            // navigator.serviceWorker.register('../sw.js').then(function() {
+            //   console.log('Service Worker Registered'); 
+            // });
+        // });
+    }
   </script>
 </body>
 

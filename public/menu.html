@@ -55,6 +55,7 @@
     <script>
         let dishes = [];
         let cart = [];
+        let history=[];
         window.onload = async function () {
             const user_id = await get_User_id();
             $.ajax({

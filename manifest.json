@@ -1,0 +1,13 @@
+{
+    "short_name": "オーダーコンシェルジュAI",
+    "name": "オーダーコンシェルジュAI",
+    "display": "fullscreen",
+    "start_url": "/live2d/",
+    "icons": [
+        {
+            "src": "180.png",
+            "sizes": "180x180",
+            "type": "image/png"
+        }
+    ]
+}

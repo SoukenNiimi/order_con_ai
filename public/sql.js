@@ -190,10 +190,10 @@ async function updateTableflg_end(tableId, userId) {
 }
 
 
-async function get_history(tableId, userId) {
+async function get_history( userId,tableId) {
     try {
         await sql.connect(config);
-        `SELECT * FROM order_table WHERE user_id = ${userId} AND table_id = ${tableId};`;
+        const result =await sql.query`SELECT * FROM order_table WHERE user_id = ${userId} AND table_id = ${tableId};`;
         return result.recordset;
     } catch (err) {
         console.error('データベースエラー:', err);
@@ -215,13 +215,15 @@ async function updateTableflg_start(tableId, userId) {
     }
 }
 
-async function addOrder(order) {
-    const { user_id, dish_id, table_id, quantity } = order;
+async function addOrder(order,user_id,table_id) {
+    const { dish_id,quantity } = order;
     const order_date = new Date().toISOString().slice(0, 19).replace('T', ' ');
     try {
-        await sql.connect(config);
-        const result = await sql.query`INSERT INTO order_table (user_id, dish_id, table_id, order_date, quantity) VALUES (${user_id}, ${dish_id}, ${table_id}, ${order_date}, ${quantity})`;
-        return result;
+        if (!sql.connected) {
+            await sql.connect(config);
+        }
+        const result = await sql.query`INSERT INTO order_table (user_id, dish_id, table_id, order_date, quantity) VALUES (${user_id}, ${dish_id}, ${table_id}, ${order_date}, ${quantity});`;
+        return {status:'success'};
     } catch (err) {
         console.error('データベースエラー:', err);
         throw err;
