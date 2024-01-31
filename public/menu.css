@@ -125,3 +125,38 @@ aside {
         font-size: 1.5em;
     }
 }
+
+#btn-disp{
+    background-color: #4CAF50;
+    /* 緑色の背景 */
+    color: white;
+    /* 白色のテキスト */
+    padding: 10px 20px;
+    /* パディング */
+    border: none;
+    /* ボーダーなし */
+    border-radius: 50%;
+    /* 円形 */
+    cursor: pointer;
+    /* カーソルをポインターに */
+    font-size: 24px;
+    /* フォントサイズ */
+    position: relative;
+    /* 相対位置 */
+    outline: none;
+    /* アウトラインなし */
+}
+
+#btn-disp::after {
+    content: '✋';
+    /* ボタンのテキスト */
+}
+
+#btn-disp.close::after {
+    content: '✖';
+    /* バツボタンのテキスト */
+}
+
+#myCanvas{
+    z-index: 999;
+}
