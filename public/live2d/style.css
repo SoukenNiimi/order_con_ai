@@ -671,7 +671,7 @@ label {
     /* 影を追加 */
     border-radius: 10px;
     /* 角を丸くする */
-    z-index: 90;
+    z-index: 1;
 }
 
 /* ========
