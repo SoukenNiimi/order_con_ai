@@ -21,6 +21,7 @@ body {
     grid-template-columns: repeat(10, 1fr);
     /* 10分割の横レイアウト */
     min-height: 100vh;
+    width:100% ;
     overflow: hidden;
 }
 
@@ -351,13 +352,13 @@ body {
 
 .btn-group {
     position: relative;
-    grid-row: 3/10;
-    grid-column: 2/5;
-    display: none;
-    justify-content: center;
-    align-items: center;
-    right: 5%;
-    /* left: 1%; */
+    grid-row: 7/10;
+    grid-column: 1/4;
+    /* display: none; */
+    /* justify-content: center;
+    align-items: center; */
+    /* right: 5%; */
+    left: 15%;
     background-color: lightgray;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
     border-radius: 10px;
@@ -374,6 +375,16 @@ body {
     overflow: hidden;
     transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
     z-index: 99;
+    display: none;
+}
+
+.btn-center{
+    height: 100%;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: space-evenly;
+
 }
 
 label {
@@ -521,7 +532,7 @@ label {
     font-size: 16px;
 }
 
-#noMoreOrderButton {
+#touchpanel {
     display: none;
     background-color: #fe4561;
     color: white;
@@ -717,31 +728,44 @@ AzureOpenAI
     position: relative;
     grid-row: 10/11;
     grid-column: 10/11;
-    right: 5%;
+    top: 10px;
+    /* left: 0; */
     /* border: 1px solid #000; */
     /* flex-direction: column; */
     justify-content: space-evenly;
     align-items: center;
     /* display: none; */
     z-index: 93;
-    padding-top: 15px;
-    padding-left: 60px;
+    /* padding-top: 15px;
+    padding-left: 60px; */
+}
+
+.test2{
+    display: flex;
+    justify-content: left;
 }
 
 .disp-container {
     position: relative;
     grid-row: 10/11;
     grid-column: 1/2;
-    left: 5%;
+    top:10px;
+    /* right: 0; */
     /* border: 1px solid #000; */
     /* flex-direction: column; */
     justify-content: space-evenly;
     align-items: center;
     /* display: none; */
     z-index: 93;
-    padding-top: 15px;
-    padding-left: 60px;
+    /* padding-top: 15px;
+    padding-left: 60px; */
 }
+
+.test{
+    display: flex;
+    justify-content: right;
+}
+
 #btn-disp {
     background-color: #4CAF50;
     /* 緑色の背景 */
@@ -764,7 +788,7 @@ AzureOpenAI
 }
 
 #btn-disp::after {
-    content: '？';
+    content: '☝';
     /* ボタンのテキスト */
 }
 
@@ -872,9 +896,7 @@ AzureOpenAI
     overflow: scroll;
     padding: 10px;
     height: 100%;
-
     list-style: none;
-
     /* スクロールバー非表示（IE,Edge）*/
     -ms-overflow-style: none;
     scrollbar-width: none;

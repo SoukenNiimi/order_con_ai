@@ -42,16 +42,16 @@
         </div>
         <textarea id="textArea" readonly placeholder="注文確認や今日の天気をここに表示"></textarea>
         <div id="orderList"></div>
-
-        <div class="btn-group">
-          <button id="suggestDishButton">提案</button>
-          <button id="startOrderButton">注文開始</button>
-          <button id="cartAddButton">カートに追加</button>
-          <button id="noMoreOrderButton">ありません</button>
-        </div>
+        <button id="startOrderButton">注文開始</button>
       </div>
     </div>
-
+    <div class="btn-group" id="btn-group">
+      <div class="btn-center">
+        <button id="suggestDishButton">提案</button>
+        <button id="cartAddButton">カートに追加</button>
+        <button id="touchpanel">タッチパネルへ</button>
+      </div>
+    </div>
     <!-- ポップアップのコンテナ -->
     <div class="popup-Container">
       <!-- ポップアップのコンテンツ -->
@@ -60,7 +60,7 @@
         <div class="imageFrame">
           <img class="imageContent" id="ai_img" alt="画像">
         </div>
-        <h2 class="imageText" id = "ai_text"></h2>
+        <h2 class="imageText" id="ai_text"></h2>
         <button id="closeButton">閉じる</button>
       </div>
     </div>
@@ -104,7 +104,7 @@
           <input type="image" class="img-mic" src="./mic.png" /></input>
           <input id="msg-send" class="msg-input" type="text" placeholder="マイクを押して質問" />
           <input id="msg-send-hidden" type="text"></input>
-          <button id="ques-submit" class="btn-submit" type="button" >
+          <button id="ques-submit" class="btn-submit" type="button">
             送信
           </button>
         </footer>
@@ -113,7 +113,15 @@
 
     <!-- 質問ボタンポップアップ -->
     <div class="ques-container">
-      <button id="quesButton"></button>
+      <div class="test2">
+        <button id="quesButton"></button>
+      </div>
+    </div>
+
+    <div class="disp-container">
+      <div class="test">
+        <button id="btn-disp"></button>
+      </div>
     </div>
 
     <!-- カート、決済ボタン -->
@@ -134,8 +142,39 @@
   <script>
     window.dishes = [];
     let cart = [];
+    var disp_flg=false;
+  
 
+    var disp=document.getElementById("btn-disp");
+    var panel =document.getElementById("touchpanel");
 
+    
+    disp.addEventListener('click', function () {
+      var suggest =document.getElementById("suggestDishButton");
+      var start =document.getElementById("cartAddButton")
+      var btn_group =document.getElementById("btn-group");
+
+      if(disp_flg){
+        btn_group.style.display ="none";
+        start.style.display="none";
+        suggest.style.display="none";
+        panel.style.display="none";
+        disp.classList.remove("close");
+        disp_flg=false;
+      }else{
+        btn_group.style.display="block";
+        start.style.display="block";
+        suggest.style.display="block";
+        panel.style.display="block";
+        disp.classList.add("close");
+        disp_flg=true;
+      }
+      
+    });
+
+    panel.addEventListener('click', function () {
+      location.href="../menu";
+    });
     async function get_User_id() {
       let userId;
       await $.ajax({
@@ -219,14 +258,14 @@
   <script>
     // service workerが有効なら、sw.js を登録します
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('../sw.js').then(function() {
-              console.log('Service Worker Registered'); 
+      navigator.serviceWorker.register('../sw.js').then(function () {
+        console.log('Service Worker Registered');
       });
-        // window.addEventListener("load", function() {
-            // navigator.serviceWorker.register('../sw.js').then(function() {
-            //   console.log('Service Worker Registered'); 
-            // });
-        // });
+      // window.addEventListener("load", function() {
+      // navigator.serviceWorker.register('../sw.js').then(function() {
+      //   console.log('Service Worker Registered'); 
+      // });
+      // });
     }
   </script>
 </body>

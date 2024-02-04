@@ -146,17 +146,3 @@ aside {
     outline: none;
     /* アウトラインなし */
 }
-
-#btn-disp::after {
-    content: '✋';
-    /* ボタンのテキスト */
-}
-
-#btn-disp.close::after {
-    content: '✖';
-    /* バツボタンのテキスト */
-}
-
-#myCanvas{
-    z-index: 999;
-}
